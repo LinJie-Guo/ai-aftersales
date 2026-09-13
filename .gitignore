@@ -1,0 +1,18 @@
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Misc
+.DS_Store
+.pnpm-store/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+
+# Runtime data and database backups
+data/
+backups/
+*.dump
+*.log

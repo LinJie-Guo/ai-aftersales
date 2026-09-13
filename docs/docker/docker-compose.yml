@@ -1,0 +1,45 @@
+name: aftersale
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aftersale}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aftersale_demo_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-aftersale}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: aftersale-app
+    restart: unless-stopped
+    build:
+      context: ../..
+      dockerfile: docs/docker/Dockerfile
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-aftersale}:${POSTGRES_PASSWORD:-aftersale_demo_password_2026}@${DATABASE_HOST:-db}:${DATABASE_PORT:-5432}/${POSTGRES_DB:-aftersale}
+      DATA_ROOT: /data/aftersale
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - ../../../data:/data/aftersale
+
+volumes:
+  pgdata:

@@ -1,0 +1,14 @@
+**/.git
+**/.DS_Store
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+**/.pnpm-store
+**/.pytest_cache
+
+**/data
+**/backups
+**/*.dump
+**/*.log
